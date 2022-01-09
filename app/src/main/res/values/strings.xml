@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">QR No Ads</string>
+    <string name="no_permission">Необходимо разрешение</string>
+    <string name="cam_run">Камера запущена</string>
+</resources>
