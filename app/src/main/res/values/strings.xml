@@ -2,4 +2,11 @@
     <string name="app_name">QR No Ads</string>
     <string name="no_permission">Необходимо разрешение</string>
     <string name="cam_run">Камера запущена</string>
+    <string name="greeting">Привет</string>
+    <string name="decryption_error">Не удалось расшифровать код</string>
+    <string name="result_title">Результат</string>
+    <string name="back">Назад</string>
+    <string name="search">Найти</string>
+    <string name="copy">Копировать</string>
+
 </resources>

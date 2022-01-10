@@ -3,6 +3,13 @@
     package="com.zxltrxn.qrnoads">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -12,22 +19,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QRNoAds">
         <activity
-            android:name=".Scanner_Activity"
-            android:exported="false" >
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".presentation.Scanner_Activity"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
+            </intent-filter>
         </activity>
     </application>
 
