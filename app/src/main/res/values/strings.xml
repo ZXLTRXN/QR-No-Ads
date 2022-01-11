@@ -8,5 +8,6 @@
     <string name="back">Назад</string>
     <string name="search">Найти</string>
     <string name="copy">Копировать</string>
+    <string name="open_browser_error">Не удалось открыть браузер</string>
 
 </resources>

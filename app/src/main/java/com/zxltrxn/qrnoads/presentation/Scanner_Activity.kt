@@ -32,7 +32,7 @@ import com.zxltrxn.qrnoads.isURL
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 
-
+// https://github.com/zxing/zxing/wiki/Barcode-Contents
 // https://developer.android.com/codelabs/jetpack-compose-state#
 val TAG = "QRScanner"
 
@@ -78,10 +78,10 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
     override fun onResume() {
         super.onResume()
         scannerView?.setResultHandler(this)
-        scannerView?.startCamera()
-        /////////////
-        if (vm.dataLive.value != vm.defaultVal)
-            scannerView?.stopCameraPreview()
+//        scannerView?.stopCameraPreview() не работает
+        if (vm.dataLive.value == vm.defaultVal) {
+            scannerView?.startCamera()
+        }
     }
 
     override fun handleResult(result: Result?) {
@@ -95,6 +95,7 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
 
     fun backFromResultDialog(){
         vm.saveData(vm.defaultVal)
+        scannerView?.startCamera()
         scannerView?.resumeCameraPreview(this)
     }
 
@@ -114,7 +115,7 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
                 startActivity(intent)
             }else{
                 Toast.makeText(this,
-                    "Не удается найти", Toast.LENGTH_SHORT).show()
+                    R.string.open_browser_error, Toast.LENGTH_SHORT).show()
             }
         }
         if(vm.dataLive.value == null){
