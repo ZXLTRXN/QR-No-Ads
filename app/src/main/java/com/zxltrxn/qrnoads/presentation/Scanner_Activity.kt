@@ -2,6 +2,9 @@ package com.zxltrxn.qrnoads.presentation
 
 import android.Manifest
 import android.app.SearchManager
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
@@ -21,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat.*
@@ -28,10 +33,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.zxltrxn.qrnoads.R
 import com.zxltrxn.qrnoads.isURL
+import com.zxltrxn.qrnoads.presentation.composeobjects.ResultDialog
 
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
-
+// https://stackoverflow.com/questions/8818290/how-do-i-connect-to-a-specific-wi-fi-network-in-android-programmatically
 // https://github.com/zxing/zxing/wiki/Barcode-Contents
 // https://developer.android.com/codelabs/jetpack-compose-state#
 val TAG = "QRScanner"
@@ -64,7 +70,11 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
             MdcTheme {
                 val data:String by vm.dataLive.observeAsState(vm.defaultVal)
                 if(data !=vm.defaultVal){
-                    ResultDialog(data = data, backFun = ::backFromResultDialog, searchFun = ::searchInBrowser)
+                    ResultDialog(data = data,
+                        backFun = ::backFromResultDialog,
+                        searchFun = ::searchInBrowser,
+                        copyFun = ::copyToClipBoard
+                    )
                 }
             }
         }
@@ -123,14 +133,18 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
         }
     }
 
+    fun copyToClipBoard(){
+        Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("simple text", vm.dataLive.value)
+        clipboard.setPrimaryClip(clip)
+    }
+
 
     // Разрешение на камеру //
     private fun checkCameraPermission(){
         if(checkSelfPermission(this, Manifest.permission.CAMERA)
-            == PackageManager.PERMISSION_GRANTED){
-            Toast.makeText(this,R.string.cam_run,Toast.LENGTH_SHORT).show()
-        }
-        else{
+            != PackageManager.PERMISSION_GRANTED){
             permLauncher?.launch(Manifest.permission.CAMERA)
         }
     }
@@ -140,51 +154,9 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
         permLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()){
             isGranted->
-            if(isGranted){
-                Toast.makeText(this,R.string.cam_run,Toast.LENGTH_SHORT).show()
-            }else{
+            if(!isGranted){
                 Toast.makeText(this,R.string.no_permission,Toast.LENGTH_SHORT).show()
             }
         }
-    }
-}
-
-
-@Composable
-fun ResultDialog(
-    data:String,
-    backFun:()->Unit,
-    searchFun:()->Unit
-) {
-    Column {
-        AlertDialog(
-            onDismissRequest = {
-                backFun()
-
-            },
-            title = {
-                Text(text = stringResource(id = R.string.result_title))
-            },
-            text = {
-                Text(data)
-            },
-            confirmButton = {
-                Button(
-
-                    onClick = {
-                        searchFun()
-                    }) {
-                    Text(text = stringResource(id = R.string.search))
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        backFun()
-                    }) {
-                    Text(text = stringResource(id = R.string.back))
-                }
-            }
-        )
     }
 }
