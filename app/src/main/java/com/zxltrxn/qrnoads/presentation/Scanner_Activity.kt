@@ -15,24 +15,20 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat.*
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.zxltrxn.qrnoads.R
 import com.zxltrxn.qrnoads.isURL
+import com.zxltrxn.qrnoads.presentation.composeobjects.AppBar
 import com.zxltrxn.qrnoads.presentation.composeobjects.ResultDialog
 
 import me.dm7.barcodescanner.zbar.Result
@@ -69,6 +65,11 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
         resultDialog.setContent {
             MdcTheme {
                 val data:String by vm.dataLive.observeAsState(vm.defaultVal)
+                Column(modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Top,) {
+                    AppBar(menuAction = MenuAction.Flashlight,actionFun = ::flashChange)
+                }
+
                 if(data !=vm.defaultVal){
                     ResultDialog(data = data,
                         backFun = ::backFromResultDialog,
@@ -140,6 +141,12 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
         clipboard.setPrimaryClip(clip)
     }
 
+    fun flashChange(){
+        scannerView?.flash?.let{
+            scannerView?.flash = !it
+        }
+    }
+
 
     // Разрешение на камеру //
     private fun checkCameraPermission(){
@@ -160,3 +167,5 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
         }
     }
 }
+
+
