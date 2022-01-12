@@ -28,13 +28,13 @@ import androidx.core.content.ContextCompat.*
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.zxltrxn.qrnoads.R
 import com.zxltrxn.qrnoads.isURL
+import com.zxltrxn.qrnoads.models.StringFromScanner
 import com.zxltrxn.qrnoads.presentation.composeobjects.AppBar
 import com.zxltrxn.qrnoads.presentation.composeobjects.ResultDialog
 
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
 // https://stackoverflow.com/questions/8818290/how-do-i-connect-to-a-specific-wi-fi-network-in-android-programmatically
-// https://github.com/zxing/zxing/wiki/Barcode-Contents
 // https://developer.android.com/codelabs/jetpack-compose-state#
 val TAG = "QRScanner"
 
@@ -64,14 +64,14 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
 
         resultDialog.setContent {
             MdcTheme {
-                val data:String by vm.dataLive.observeAsState(vm.defaultVal)
+                val data:StringFromScanner by vm.dataLive.observeAsState(vm.defaultVal)
                 Column(modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Top,) {
                     AppBar(menuAction = MenuAction.Flashlight,actionFun = ::flashChange)
                 }
 
                 if(data !=vm.defaultVal){
-                    ResultDialog(data = data,
+                    ResultDialog(data = data.strVal,
                         backFun = ::backFromResultDialog,
                         searchFun = ::searchInBrowser,
                         copyFun = ::copyToClipBoard
@@ -100,18 +100,19 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
             vm.saveData(result.contents)
         }else{
             Toast.makeText(this,R.string.decryption_error,Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "handleResult: null content from camera", )
             scannerView?.resumeCameraPreview(this)
         }
     }
 
     fun backFromResultDialog(){
-        vm.saveData(vm.defaultVal)
+        vm.setDefaultData()
         scannerView?.startCamera()
         scannerView?.resumeCameraPreview(this)
     }
 
     fun searchInBrowser(){
-        vm.dataLive.value?.let{
+        vm.dataLive.value?.strVal?.let{
             var searchStr = it
             if(!it.isURL()) {
                 searchStr.replace(' ', '+').also { searchStr = it }
@@ -137,7 +138,7 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
     fun copyToClipBoard(){
         Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText("simple text", vm.dataLive.value)
+        val clip: ClipData = ClipData.newPlainText("simple text", vm.dataLive.value?.strVal)
         clipboard.setPrimaryClip(clip)
     }
 

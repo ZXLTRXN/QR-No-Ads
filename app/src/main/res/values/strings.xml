@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">QR Сканер</string>
+    <string name="app_name">QR</string>
     <string name="no_permission">Необходимо разрешение</string>
     <string name="cam_run">Камера запущена</string>
     <string name="greeting">Привет</string>
