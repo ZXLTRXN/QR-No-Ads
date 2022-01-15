@@ -18,7 +18,7 @@ class ScannerViewModel:ViewModel() {
 
     fun setDefaultData(){ dataLiveMutable.value = defaultVal }
 
-    fun saveData(string:String):Map<String,String>? {
+    fun saveData(string:String){
         val type = dataAnalyzer(string)
         var params:Map<String,String>? = null
         var resultStr = string
@@ -30,10 +30,12 @@ class ScannerViewModel:ViewModel() {
                 val name = params.getOrElse("S"){"???"}
                 resultStr = "WIFI сеть\nтип ${typeName}\nимя ${name}"
             }
-            else->{}
+            Type.TEXT->{}
+            else->{
+                resultStr = resultStr.removeRange(0..(resultStr.indexOf(':')+1))
+            }
         }
-        dataLiveMutable.value = StringFromScanner(resultStr,type)
-        return params
+        dataLiveMutable.value = StringFromScanner(resultStr,type,params)
     }
 
 
@@ -42,16 +44,19 @@ class ScannerViewModel:ViewModel() {
         var type = Type.TEXT
         when{
             // doesnt change the order!
-            string.startsWith(prefix = "mailto:", ignoreCase = true)
+            string.startsWith(prefix = Type.MAIL.prefix, ignoreCase = true)
             ->type = Type.MAIL
 
-            string.isURL() || string.startsWith(prefix = "urlto:", ignoreCase = true)
+            string.isURL() || string.startsWith(prefix = Type.URL.prefix, ignoreCase = true)
             ->type = Type.URL
 
-            string.startsWith(prefix = "wifi:", ignoreCase = true)
+            string.startsWith(prefix = Type.WIFI.prefix, ignoreCase = true)
             ->type = Type.WIFI
 
-            string.startsWith(prefix = "tel:", ignoreCase = true)
+            string.startsWith(prefix = Type.MARKET.prefix, ignoreCase = true)
+            ->type = Type.MARKET
+
+            string.startsWith(prefix = Type.TELEPHONE.prefix, ignoreCase = true)
             ->type = Type.TELEPHONE
 
 

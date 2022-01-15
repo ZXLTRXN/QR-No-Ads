@@ -9,12 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.zxltrxn.qrnoads.R
+import com.zxltrxn.qrnoads.models.Type
 
 @Composable
 fun ResultDialog(
     data:String,
+    actionString: String,
     backFun:()->Unit,
-    searchFun:()->Unit,
+    actionFun:()->Unit,
     copyFun:()->Unit
 ) {
     Column {
@@ -35,7 +37,7 @@ fun ResultDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        searchFun()
+                        actionFun()
                     }) {
                     Text(text = stringResource(id = R.string.search))
                 }

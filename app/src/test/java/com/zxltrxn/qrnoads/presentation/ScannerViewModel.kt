@@ -40,6 +40,9 @@ class ScannerViewModelTest {
         params[0] = "tele:89232352533"
         assertEquals(Type.TEXT,method.invoke(vm,*params))
 
+        params[0] = "market://details?id=org.example.foo"
+        assertEquals(Type.MARKET,method.invoke(vm,*params))
+
     }
 
 //    @Test
