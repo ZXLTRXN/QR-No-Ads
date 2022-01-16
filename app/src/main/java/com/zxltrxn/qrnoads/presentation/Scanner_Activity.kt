@@ -7,42 +7,36 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiNetworkSuggestion
-import android.net.wifi.hotspot2.PasspointConfiguration
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings.ACTION_WIFI_ADD_NETWORKS
+import android.provider.Settings.EXTRA_WIFI_NETWORK_LIST
 import android.util.Log
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat.*
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.zxltrxn.qrnoads.R
-import com.zxltrxn.qrnoads.isURL
 import com.zxltrxn.qrnoads.models.StringFromScanner
 import com.zxltrxn.qrnoads.models.Type
 import com.zxltrxn.qrnoads.presentation.composeobjects.AppBar
 import com.zxltrxn.qrnoads.presentation.composeobjects.ResultDialog
-
 import me.dm7.barcodescanner.zbar.Result
 import me.dm7.barcodescanner.zbar.ZBarScannerView
-import android.net.wifi.WifiConfiguration
-import android.provider.Settings.ACTION_WIFI_ADD_NETWORKS
-import android.provider.Settings.EXTRA_WIFI_NETWORK_LIST
 
 
 // https://stackoverflow.com/questions/8818290/how-do-i-connect-to-a-specific-wi-fi-network-in-android-programmatically
@@ -119,7 +113,7 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
     fun backFromResultDialog(){
         vm.setDefaultData()
         scannerView?.startCamera()
-//        scannerView?.resumeCameraPreview(this)
+        scannerView?.resumeCameraPreview(this)
     }
 
     fun action(){
@@ -135,6 +129,7 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
             if(it.type != Type.URL) {
                 searchStr.replace(' ', '+').also { searchStr = it }
                 searchStr = "https://google.com/search?q=$searchStr"
+
             }
 
             val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
@@ -156,6 +151,7 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
     fun connectWifi(){
         val ssid = vm.dataLive.value?.asMap?.getOrElse("S"){"no ssid"}?:"no ssid"
         val pass = vm.dataLive.value?.asMap?.getOrElse("P"){"12345"}?:"12345"
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Log.d(TAG, "connectWifi: api >=Q")
@@ -169,12 +165,17 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
 //                    .setPasspointConfig(passpointConfig)
 //                    .build()
 //            } else { null }
-
-            suggestions.add(
-                WifiNetworkSuggestion.Builder()
-                    .setSsid(ssid)
-                    .build()
-            )
+//            suggestions.add(
+//                WifiNetworkSuggestion.Builder()
+//                    .setSsid(ssid)
+//                    .build()
+//            )
+//            suggestions.add(
+//                WifiNetworkSuggestion.Builder()
+//                .setSsid(ssid)
+//                .setWpa3Passphrase(pass)
+//                .build()
+//            )
 
             suggestions.add(
                 WifiNetworkSuggestion.Builder()
@@ -182,15 +183,6 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
                 .setWpa2Passphrase(pass)
                 .build()
             )
-
-            suggestions.add(
-                WifiNetworkSuggestion.Builder()
-                .setSsid(ssid)
-                .setWpa3Passphrase(pass)
-                .build()
-            )
-
-            val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
             val status = wifiManager.addNetworkSuggestions(suggestions);
             if (status != WifiManager.STATUS_NETWORK_SUGGESTIONS_SUCCESS) {
@@ -211,7 +203,19 @@ class Scanner_Activity : AppCompatActivity(),ZBarScannerView.ResultHandler {
             }
 
         } else {
+            val wifiConfig = WifiConfiguration()
+            wifiConfig.SSID = String.format("\"%s\"", ssid)
+            wifiConfig.preSharedKey = String.format("\"%s\"", pass)
 
+            val netId = wifiManager.addNetwork(wifiConfig)
+            val status = wifiManager.enableNetwork(netId, true)
+            if(status){
+                Toast.makeText(this,
+                    R.string.wifi_success, Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(this,
+                    R.string.wifi_error, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

@@ -6,5 +6,5 @@ enum class Type(val prefix:String) {
     WIFI("wifi:"),
     TELEPHONE("tel:"),
     MAIL("mailto:"),
-    MARKET("market")
+    MARKET("market:")
 }

@@ -31,6 +31,7 @@ class ScannerViewModel:ViewModel() {
                 resultStr = "WIFI сеть\nтип ${typeName}\nимя ${name}"
             }
             Type.TEXT->{}
+            Type.URL->{}
             else->{
                 resultStr = resultStr.removeRange(0..(resultStr.indexOf(':')+1))
             }

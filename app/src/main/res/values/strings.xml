@@ -12,5 +12,6 @@
     <string name="copied_to_clipboard">Cкопировано в буфер</string>
     <string name="flashlight">Фонарик</string>
     <string name="wifi_error">Не удается подключиться</string>
+    <string name="wifi_success">Подключено к сети</string>
 
 </resources>
